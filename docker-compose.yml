@@ -1,14 +1,22 @@
 version: '3.8'
 services:
-  postgres:
-    image: postgres:13.5
-    restart: always
-    environment:
-      - POSTGRES_USER=recipe
-      - POSTGRES_PASSWORD=RecipePassword
-    volumes:
-      - postgres:/var/lib/postgresql/data
+  app:
+    build: .
     ports:
-      - '5432:5432'
+      - '3000:3000'
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://user:password@db:5432/dbname
+      - TELEGRAM_TOKEN=your_telegram_bot_token
+      - TELEGRAM_CHAT_ID=your_chat_id
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=dbname
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 volumes:
-  postgres:
+  pgdata:
