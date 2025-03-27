@@ -9,11 +9,14 @@ export class Website {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   login_url: string;
 
-  @Column()
-  bank_info_url: string;
+  @Column({ nullable: true })
+  payment_info_url: string;
+
+  @Column({ nullable: true })
+  bank_code_url: string;
 
   @OneToMany(() => Account, (account) => account.website)
   accounts: Account[];

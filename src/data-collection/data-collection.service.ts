@@ -13,9 +13,12 @@ export class DataCollectionService {
   constructor(
     private readonly httpService: HttpService,
     private readonly telegramService: TelegramService,
-    @InjectRepository(Website) private readonly websiteRepository: Repository<Website>,
-    @InjectRepository(Account) private readonly accountRepository: Repository<Account>,
-    @InjectRepository(BankInfo) private readonly bankInfoRepository: Repository<BankInfo>,
+    @InjectRepository(Website)
+    private readonly websiteRepository: Repository<Website>,
+    @InjectRepository(Account)
+    private readonly accountRepository: Repository<Account>,
+    @InjectRepository(BankInfo)
+    private readonly bankInfoRepository: Repository<BankInfo>,
   ) {}
 
   @Cron('0 */10 * * * *') // Every 10 minutes
@@ -29,7 +32,9 @@ export class DataCollectionService {
   private async processWebsite(website: Website) {
     let account: Account | null;
     while (true) {
-      account = await this.accountRepository.findOne({ where: { website, status: 'unused' } });
+      account = await this.accountRepository.findOne({
+        where: { website, status: 'unused' },
+      });
       if (!account) {
         console.log(`No unused accounts for website ${website.name}`);
         return;
@@ -71,20 +76,31 @@ export class DataCollectionService {
   }
 
   private async login(website: Website, account: Account): Promise<string> {
-    const response = await this.httpService.axiosRef.post(website.login_url, {
+    var payload = {
+      ...account.payload,
       username: account.username,
       password: account.password,
-    });
+    };
+    const response = await this.httpService.axiosRef.post(
+      website.login_url,
+      payload,
+    );
     if (response.data.status === 'locked') {
       throw new Error('Account locked');
     }
     return response.data.access_token;
   }
 
-  private async getBankInfos(website: Website, accessToken: string): Promise<any[]> {
-    const response = await this.httpService.axiosRef.get(website.bank_info_url, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+  private async getBankInfos(
+    website: Website,
+    accessToken: string,
+  ): Promise<any[]> {
+    const response = await this.httpService.axiosRef.get(
+      website.payment_info_url,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    );
     return response.data.bank_infos;
   }
 

@@ -15,7 +15,12 @@ import { BankInfo } from './entities/bank-info.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL,
+      url: 'postgres://mrnobody:password@host.docker.internal:5432/dbname',
+      // port: 5432,
+      // host: 'localhost',
+      // username: 'mrnobody',
+      // password: 'password',
+      // database: 'dbname',
       entities: [Website, Account, BankInfo],
       synchronize: true,
     }),
